@@ -1,4 +1,4 @@
-import { defineNuxtPlugin } from '#app';
+import {defineNuxtPlugin} from '#app';
 import PrimeVue from 'primevue/config';
 import Timeline from 'primevue/timeline';
 import Message from 'primevue/message';

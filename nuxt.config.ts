@@ -5,8 +5,9 @@ export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
     devtools: {enabled: true},
     modules: ['@primevue/nuxt-module', '@nuxtjs/tailwindcss'],
+    srcDir: 'src/',
     css: [
-        '@/assets/styles.scss'
+        '/assets/styles.scss',
     ],
     postcss: {
         plugins: {

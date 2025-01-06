@@ -1,7 +1,7 @@
 <script setup>
-import { useLayout } from '~~/layouts/composables/layouts';
-import { ProductService } from '~/service/ProductService.js';
 import { onMounted, ref, watch } from 'vue';
+import {useLayout} from "~/layouts/composables/layout.js";
+import {ProductService} from "~/service/ProductService.js";
 
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
 

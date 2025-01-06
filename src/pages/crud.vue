@@ -1,8 +1,8 @@
 <script setup>
-import { ProductService } from '~~/service/ProductService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+import {ProductService} from "~/service/ProductService.js";
 
 onMounted(() => {
     ProductService.getProducts().then((data) => (products.value = data));

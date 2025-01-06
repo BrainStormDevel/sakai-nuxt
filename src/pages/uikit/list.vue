@@ -1,6 +1,6 @@
 <script setup>
-import { ProductService } from '~~/service/ProductService';
 import { onMounted, ref } from 'vue';
+import {ProductService} from "~/service/ProductService.js";
 
 const products = ref(null);
 const picklistProducts = ref(null);

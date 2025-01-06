@@ -3,7 +3,7 @@ import { $t, updatePreset, updateSurfacePalette } from '@primevue/themes';
 import Aura from '@primevue/themes/aura';
 import Lara from '@primevue/themes/lara';
 import { ref } from 'vue';
-import {useLayout} from "~~/layouts/composables/layout.js";
+import {useLayout} from "~/layouts/composables/layout.js";
 
 const { layoutConfig, setPrimary, setSurface, setPreset, isDarkTheme, setMenuMode } = useLayout();
 

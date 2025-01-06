@@ -1,7 +1,7 @@
 <script setup>
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import {useLayout} from "~~/layouts/composables/layout.js";
+import {useLayout} from "~/layouts/composables/layout.js";
 
 const route = useRoute();
 
