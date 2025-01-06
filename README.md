@@ -34,7 +34,7 @@ Sakai Nuxt builds on this foundation, introducing the power and flexibility of N
 
 Clone the repository and install dependencies:
 
-```bash  
+```  bash
 git clone https://github.com/suprimpoudel/sakai-nuxt  
 cd sakai-nuxt  
 npm install  
@@ -71,6 +71,30 @@ Deploy your static site using Nuxt's static generation:
 ```bash  
 npm run generate  
 ```  
+
+### Docker Image Generation
+
+To build the Docker image, run the build.sh script with a tag name:
+
+```bash
+build.sh <TAG_NAME>
+```
+
+Run Docker Image
+
+To run the Docker image, use docker-compose:
+
+```bash
+docker-compose up
+```
+
+### Key Docker Files
+
+	•	Dockerfile: Defines the multi-stage build process for the Docker image.
+	•	docker-compose.yaml: Configuration for running the application in Docker.
+	•	build.sh: Bash script to build the Docker image.
+
+For more details on the Docker process, review these files in the repository.
 
 ## Folder Structure
 
