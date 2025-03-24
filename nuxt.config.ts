@@ -1,5 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import Theme from '@primevue/themes/aura';
+import Theme from '@primeuix/themes/aura';
 
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
