@@ -55,13 +55,13 @@ Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 To build the project for production:
 
 ```bash  
-npm run build  
+nuxt generate
 ```  
 
 Start the production server:
 
 ```bash  
-npm run start  
+nuxt preview  
 ```  
 
 ### Deploy
