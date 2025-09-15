@@ -35,7 +35,7 @@ Sakai Nuxt builds on this foundation, introducing the power and flexibility of N
 Clone the repository and install dependencies:
 
 ```  bash
-git clone https://github.com/suprimpoudel/sakai-nuxt  
+git clone https://github.com/brainstormdevel/sakai-nuxt  
 cd sakai-nuxt  
 npm install  
 ```  
