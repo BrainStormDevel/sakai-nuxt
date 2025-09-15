@@ -22,11 +22,6 @@ function showWarn() {
 function showError() {
     toast.add({ severity: 'error', summary: 'Error Message', detail: 'Message Detail', life: 3000 });
 }
-
-// Add a function to test if the page is loading
-onMounted(() => {
-    console.log('Message page loaded');
-});
 </script>
 
 <template>
