@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 import Theme from '@primeuix/themes/aura';
 
 export default defineNuxtConfig({
@@ -23,7 +22,8 @@ export default defineNuxtConfig({
                 options: {
                     darkModeSelector: '.app-dark'
                 }
-            }
+            },
+            unstyled: false
         },
         components: {
             include: [
@@ -34,7 +34,7 @@ export default defineNuxtConfig({
                 'ButtonGroup', 'SplitButton', 'Toolbar', 'PickList', 'OrderList',
                 'DataView', 'Rating', 'Badge', 'OverlayBadge', 'Chip', 'IconField',
                 'InputIcon', 'FloatLabel', 'Textarea', 'AutoComplete', 'DatePicker',
-                'TieredMenu', 'ContextMenu', 'MegaMenu', 'SelectButton'
+                'TieredMenu', 'ContextMenu', 'MegaMenu', 'SelectButton', 'Chart'
             ]
         }
     },

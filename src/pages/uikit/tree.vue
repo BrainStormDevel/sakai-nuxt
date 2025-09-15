@@ -7,9 +7,20 @@ const selectedTreeValue = ref(null);
 const treeTableValue = ref(null);
 const selectedTreeTableValue = ref(null);
 
+// Check if we're in a browser environment
+const isClient = typeof window !== 'undefined';
+
+// Initialize with empty data for server-side rendering
+treeValue.value = [];
+selectedTreeValue.value = [];
+treeTableValue.value = [];
+selectedTreeTableValue.value = [];
+
 onMounted(() => {
-    NodeService.getTreeNodes().then((data) => (treeValue.value = data));
-    NodeService.getTreeTableNodes().then((data) => (treeTableValue.value = data));
+    if (isClient) {
+        NodeService.getTreeNodes().then((data) => (treeValue.value = data));
+        NodeService.getTreeTableNodes().then((data) => (treeTableValue.value = data));
+    }
 });
 </script>
 

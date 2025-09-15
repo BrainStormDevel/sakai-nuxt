@@ -53,21 +53,33 @@ const inputGroupValue = ref(false);
 const treeSelectNodes = ref(null);
 const selectedNode = ref(null);
 
+// Check if we're in a browser environment
+const isClient = typeof window !== 'undefined';
+
+// Initialize with empty data for server-side rendering
+autoValue.value = [];
+autoFilteredValue.value = [];
+treeSelectNodes.value = [];
+
 onMounted(() => {
-    CountryService.getCountries().then((data) => (autoValue.value = data));
-    NodeService.getTreeNodes().then((data) => (treeSelectNodes.value = data));
+    if (isClient) {
+        CountryService.getCountries().then((data) => (autoValue.value = data));
+        NodeService.getTreeNodes().then((data) => (treeSelectNodes.value = data));
+    }
 });
 
 function searchCountry(event) {
-    setTimeout(() => {
-        if (!event.query.trim().length) {
-            autoFilteredValue.value = [...autoValue.value];
-        } else {
-            autoFilteredValue.value = autoValue.value.filter((country) => {
-                return country.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        }
-    }, 250);
+    if (isClient) {
+        setTimeout(() => {
+            if (!event.query.trim().length) {
+                autoFilteredValue.value = [...autoValue.value];
+            } else {
+                autoFilteredValue.value = autoValue.value.filter((country) => {
+                    return country.name.toLowerCase().startsWith(event.query.toLowerCase());
+                });
+            }
+        }, 250);
+    }
 }
 </script>
 

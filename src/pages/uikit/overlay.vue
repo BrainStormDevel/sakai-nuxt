@@ -17,17 +17,26 @@ const op = ref(null);
 const op2 = ref(null);
 const popup = ref(null);
 
+// Check if we're in a browser environment
+const isClient = typeof window !== 'undefined';
+
+// Initialize with empty data for server-side rendering
+products.value = [];
+
 const toast = useToast();
 const confirmPopup = useConfirm();
 
 onMounted(() => {
-    ProductService.getProductsSmall()
-        .then((data) => {
-            products.value = data;
-        })
-        .catch((error) => {
-            console.error('Error fetching products:', error);
-        });
+    if (isClient) {
+        ProductService.getProductsSmall()
+            .then((data) => {
+                products.value = data;
+            })
+            .catch((error) => {
+                console.error('Error fetching products:', error);
+                products.value = [];
+            });
+    }
 });
 
 function open() {
@@ -47,34 +56,40 @@ function closeConfirmation() {
 }
 
 function toggleDataTable(event) {
-    op2.value.toggle(event);
+    if (isClient) {
+        op2.value.toggle(event);
+    }
 }
 
 function onProductSelect(event) {
-    op.value.hide();
-    toast.add({ severity: 'info', summary: 'Product Selected', detail: event.data.name, life: 3000 });
+    if (isClient) {
+        op.value.hide();
+        toast.add({ severity: 'info', summary: 'Product Selected', detail: event.data.name, life: 3000 });
+    }
 }
 
 function confirm(event) {
-    confirmPopup.require({
-        target: event.target,
-        message: 'Are you sure you want to proceed?',
-        icon: 'pi pi-exclamation-triangle',
-        rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
-            outlined: true
-        },
-        acceptProps: {
-            label: 'Save'
-        },
-        accept: () => {
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
-        },
-        reject: () => {
-            toast.add({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
-        }
-    });
+    if (isClient) {
+        confirmPopup.require({
+            target: event.target,
+            message: 'Are you sure you want to proceed?',
+            icon: 'pi pi-exclamation-triangle',
+            rejectProps: {
+                label: 'Cancel',
+                severity: 'secondary',
+                outlined: true
+            },
+            acceptProps: {
+                label: 'Save'
+            },
+            accept: () => {
+                toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+            },
+            reject: () => {
+                toast.add({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+            }
+        });
+    }
 }
 </script>
 

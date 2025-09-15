@@ -1,24 +1,48 @@
 <script setup>
-import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
-import Lara from '@primeuix/themes/lara';
 import { ref } from 'vue';
 import {useLayout} from "~/layouts/composables/layout.js";
 
 const { layoutConfig, setPrimary, setSurface, setPreset, isDarkTheme, setMenuMode } = useLayout();
-
-const presets = {
-    Aura,
-    Lara
-};
-const preset = ref(layoutConfig.preset);
-const presetOptions = ref(Object.keys(presets));
 
 const menuMode = ref(layoutConfig.menuMode);
 const menuModeOptions = ref([
     { label: 'Static', value: 'static' },
     { label: 'Overlay', value: 'overlay' }
 ]);
+
+// PrimeVue theme options
+const themes = ref([
+    { name: 'lara-light-indigo', label: 'Lara Light Indigo' },
+    { name: 'lara-light-blue', label: 'Lara Light Blue' },
+    { name: 'lara-light-purple', label: 'Lara Light Purple' },
+    { name: 'lara-light-teal', label: 'Lara Light Teal' },
+    { name: 'lara-dark-indigo', label: 'Lara Dark Indigo' },
+    { name: 'lara-dark-blue', label: 'Lara Dark Blue' },
+    { name: 'lara-dark-purple', label: 'Lara Dark Purple' },
+    { name: 'lara-dark-teal', label: 'Lara Dark Teal' },
+    { name: 'md-light-indigo', label: 'Material Light Indigo' },
+    { name: 'md-light-deeppurple', label: 'Material Light Deep Purple' },
+    { name: 'md-dark-indigo', label: 'Material Dark Indigo' },
+    { name: 'md-dark-deeppurple', label: 'Material Dark Deep Purple' }
+]);
+
+const currentTheme = ref('lara-light-blue');
+
+// Function to change PrimeVue theme
+function changeTheme(theme) {
+    currentTheme.value = theme.name;
+    
+    // Remove existing theme styles
+    const themeLinks = document.querySelectorAll('[data-primevue-theme]');
+    themeLinks.forEach(link => link.remove());
+    
+    // Add new theme
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://unpkg.com/primevue@latest/resources/themes/${theme.name}/theme.css`;
+    link.setAttribute('data-primevue-theme', 'true');
+    document.head.appendChild(link);
+}
 
 const primaryColors = ref([
     { name: 'noir', palette: {} },
@@ -93,73 +117,13 @@ function getPresetExt() {
                     800: '{surface.800}',
                     900: '{surface.900}',
                     950: '{surface.950}'
-                },
-                colorScheme: {
-                    light: {
-                        primary: {
-                            color: '{primary.950}',
-                            contrastColor: '#ffffff',
-                            hoverColor: '{primary.800}',
-                            activeColor: '{primary.700}'
-                        },
-                        highlight: {
-                            background: '{primary.950}',
-                            focusBackground: '{primary.700}',
-                            color: '#ffffff',
-                            focusColor: '#ffffff'
-                        }
-                    },
-                    dark: {
-                        primary: {
-                            color: '{primary.50}',
-                            contrastColor: '{primary.950}',
-                            hoverColor: '{primary.200}',
-                            activeColor: '{primary.300}'
-                        },
-                        highlight: {
-                            background: '{primary.50}',
-                            focusBackground: '{primary.300}',
-                            color: '{primary.950}',
-                            focusColor: '{primary.950}'
-                        }
-                    }
                 }
             }
         };
     } else {
         return {
             semantic: {
-                primary: color.palette,
-                colorScheme: {
-                    light: {
-                        primary: {
-                            color: '{primary.500}',
-                            contrastColor: '#ffffff',
-                            hoverColor: '{primary.600}',
-                            activeColor: '{primary.700}'
-                        },
-                        highlight: {
-                            background: '{primary.50}',
-                            focusBackground: '{primary.100}',
-                            color: '{primary.700}',
-                            focusColor: '{primary.800}'
-                        }
-                    },
-                    dark: {
-                        primary: {
-                            color: '{primary.400}',
-                            contrastColor: '{surface.900}',
-                            hoverColor: '{primary.300}',
-                            activeColor: '{primary.200}'
-                        },
-                        highlight: {
-                            background: 'color-mix(in srgb, {primary.400}, transparent 84%)',
-                            focusBackground: 'color-mix(in srgb, {primary.400}, transparent 76%)',
-                            color: 'rgba(255,255,255,.87)',
-                            focusColor: 'rgba(255,255,255,.87)'
-                        }
-                    }
-                }
+                primary: color.palette
             }
         };
     }
@@ -171,24 +135,6 @@ function updateColors(type, color) {
     } else if (type === 'surface') {
         setSurface(color.name);
     }
-
-    applyTheme(type, color);
-}
-
-function applyTheme(type, color) {
-    if (type === 'primary') {
-        updatePreset(getPresetExt());
-    } else if (type === 'surface') {
-        updateSurfacePalette(color.palette);
-    }
-}
-
-function onPresetChange() {
-    setPreset(preset.value);
-    const presetValue = presets[preset.value];
-    const surfacePalette = surfaces.value.find((s) => s.name === layoutConfig.surface)?.palette;
-
-    $t().preset(presetValue).preset(getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
 }
 
 function onMenuModeChange() {
@@ -201,6 +147,24 @@ function onMenuModeChange() {
         class="config-panel hidden absolute top-[3.25rem] right-0 w-64 p-4 bg-surface-0 dark:bg-surface-900 border border-surface rounded-border origin-top shadow-[0px_3px_5px_rgba(0,0,0,0.02),0px_0px_2px_rgba(0,0,0,0.05),0px_1px_4px_rgba(0,0,0,0.08)]"
     >
         <div class="flex flex-col gap-4">
+            <div>
+                <span class="text-sm text-muted-color font-semibold">Theme</span>
+                <div class="pt-2 flex flex-col gap-2">
+                    <select 
+                        v-model="currentTheme" 
+                        @change="changeTheme({ name: currentTheme })"
+                        class="w-full p-2 border border-surface rounded"
+                    >
+                        <option 
+                            v-for="theme in themes" 
+                            :key="theme.name" 
+                            :value="theme.name"
+                        >
+                            {{ theme.label }}
+                        </option>
+                    </select>
+                </div>
+            </div>
             <div>
                 <span class="text-sm text-muted-color font-semibold">Primary</span>
                 <div class="pt-2 flex gap-2 flex-wrap justify-between">
@@ -231,10 +195,6 @@ function onMenuModeChange() {
                         :style="{ backgroundColor: `${surface.palette['500']}` }"
                     ></button>
                 </div>
-            </div>
-            <div class="flex flex-col gap-2">
-                <span class="text-sm text-muted-color font-semibold">Presets</span>
-                <SelectButton v-model="preset" @change="onPresetChange" :options="presetOptions" :allowEmpty="false" />
             </div>
             <div class="flex flex-col gap-2">
                 <span class="text-sm text-muted-color font-semibold">Menu Mode</span>

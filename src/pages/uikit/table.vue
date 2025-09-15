@@ -1,17 +1,18 @@
 <script setup>
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { onBeforeMount, reactive, ref } from 'vue';
-import {ProductService} from "~/service/ProductService.js";
-import {CustomerService} from "~/service/CustomerService.js";
+import { ProductService } from "~/service/ProductService.js";
+import { CustomerService } from "~/service/CustomerService.js";
 
-const customers1 = ref(null);
-const customers2 = ref(null);
-const customers3 = ref(null);
-const filters1 = ref(null);
-const loading1 = ref(null);
+const customers1 = ref([]);
+const customers2 = ref([]);
+const customers3 = ref([]);
+const filters1 = ref({});
+const loading1 = ref(true);
 const balanceFrozen = ref(false);
-const products = ref(null);
+const products = ref([]);
 const expandedRows = ref([]);
+
 const statuses = reactive(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
 const representatives = reactive([
     { name: 'Amy Elsner', image: 'amyelsner.png' },
@@ -25,6 +26,9 @@ const representatives = reactive([
     { name: 'Stephen Shaw', image: 'stephenshaw.png' },
     { name: 'XuXue Feng', image: 'xuxuefeng.png' }
 ]);
+
+// Check if we're in a browser environment
+const isClient = typeof window !== 'undefined';
 
 function getOrderSeverity(order) {
     switch (order.status) {
@@ -80,35 +84,90 @@ function getStockSeverity(product) {
     }
 }
 
-onBeforeMount(() => {
-    ProductService.getProductsWithOrdersSmall().then((data) => (products.value = data));
-    CustomerService.getCustomersLarge().then((data) => {
-        customers1.value = data;
-        loading1.value = false;
-        customers1.value.forEach((customer) => (customer.date = new Date(customer.date)));
-    });
-    CustomerService.getCustomersLarge().then((data) => (customers2.value = data));
-    CustomerService.getCustomersMedium().then((data) => (customers3.value = data));
+// Initialize filters for server-side rendering
+initFilters1();
 
-    initFilters1();
+onBeforeMount(() => {
+    if (isClient) {
+        try {
+            ProductService.getProductsWithOrdersSmall().then((data) => {
+                products.value = data;
+            }).catch((error) => {
+                console.error('Error loading products:', error);
+                products.value = [];
+            });
+            
+            CustomerService.getCustomersLarge().then((data) => {
+                customers1.value = data;
+                loading1.value = false;
+                if (customers1.value) {
+                    customers1.value.forEach((customer) => {
+                        if (customer.date) {
+                            // Check if customer.date is already a Date object
+                            if (!(customer.date instanceof Date)) {
+                                customer.date = new Date(customer.date);
+                            }
+                        }
+                    });
+                }
+            }).catch((error) => {
+                console.error('Error loading customers1:', error);
+                customers1.value = [];
+                loading1.value = false;
+            });
+            
+            CustomerService.getCustomersLarge().then((data) => {
+                customers2.value = data;
+            }).catch((error) => {
+                console.error('Error loading customers2:', error);
+                customers2.value = [];
+            });
+            
+            CustomerService.getCustomersMedium().then((data) => {
+                customers3.value = data;
+            }).catch((error) => {
+                console.error('Error loading customers3:', error);
+                customers3.value = [];
+            });
+        } catch (error) {
+            console.error('Error in onBeforeMount:', error);
+            // Initialize with empty data on error
+            customers1.value = [];
+            customers2.value = [];
+            customers3.value = [];
+            products.value = [];
+            loading1.value = false;
+        }
+    }
 });
 
 function initFilters1() {
-    filters1.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        representative: { value: null, matchMode: FilterMatchMode.IN },
-        date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-        balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
-        verified: { value: null, matchMode: FilterMatchMode.EQUALS }
-    };
+    try {
+        filters1.value = {
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            representative: { value: null, matchMode: FilterMatchMode.IN },
+            date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+            balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+            status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+            activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
+            verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+        };
+    } catch (error) {
+        console.error('Error initializing filters:', error);
+        filters1.value = {};
+    }
+}
+
+function clearFilter() {
+    initFilters1();
 }
 
 function expandAll() {
-    expandedRows.value = products.value.reduce((acc, p) => (acc[p.id] = true) && acc, {});
+    if (products.value) {
+        expandedRows.value = products.value.reduce((acc, p) => (acc[p.id] = true) && acc, {});
+    }
 }
 
 function collapseAll() {
@@ -116,11 +175,16 @@ function collapseAll() {
 }
 
 function formatCurrency(value) {
+    if (typeof value !== 'number') return value;
     return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 }
 
 function formatDate(value) {
-    return value.toLocaleDateString('en-US', {
+    if (!value) return '';
+    // Check if value is already a Date object
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return value; // Invalid date
+    return date.toLocaleDateString('en-US', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
@@ -131,7 +195,7 @@ function calculateCustomerTotal(name) {
     let total = 0;
     if (customers3.value) {
         for (let customer of customers3.value) {
-            if (customer.representative.name === name) {
+            if (customer.representative && customer.representative.name === name) {
                 total++;
             }
         }

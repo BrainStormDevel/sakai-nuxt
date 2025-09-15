@@ -1,11 +1,12 @@
 import { computed, reactive, readonly } from 'vue';
 
 const layoutConfig = reactive({
-    preset: 'Aura',
+    preset: 'Lara',
     primary: 'emerald',
     surface: null,
     darkTheme: false,
-    menuMode: 'static'
+    menuMode: 'static',
+    theme: 'lara-light-blue' // Add theme property
 });
 
 const layoutState = reactive({
@@ -31,6 +32,10 @@ export function useLayout() {
         layoutConfig.preset = value;
     };
 
+    const setTheme = (value) => {
+        layoutConfig.theme = value;
+    };
+
     const setActiveMenuItem = (item) => {
         layoutState.activeMenuItem = item.value || item;
     };
@@ -52,6 +57,31 @@ export function useLayout() {
     const executeDarkModeToggle = () => {
         layoutConfig.darkTheme = !layoutConfig.darkTheme;
         document.documentElement.classList.toggle('app-dark');
+        
+        // Update theme based on dark mode
+        if (layoutConfig.theme.includes('light')) {
+            const darkTheme = layoutConfig.theme.replace('light', 'dark');
+            setTheme(darkTheme);
+            updateTheme(darkTheme);
+        } else if (layoutConfig.theme.includes('dark')) {
+            const lightTheme = layoutConfig.theme.replace('dark', 'light');
+            setTheme(lightTheme);
+            updateTheme(lightTheme);
+        }
+    };
+
+    // Function to update theme dynamically
+    const updateTheme = (theme) => {
+        // Remove existing theme styles
+        const themeLinks = document.querySelectorAll('[data-primevue-theme]');
+        themeLinks.forEach(link => link.remove());
+        
+        // Add new theme
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `https://unpkg.com/primevue@latest/resources/themes/${theme}/theme.css`;
+        link.setAttribute('data-primevue-theme', 'true');
+        document.head.appendChild(link);
     };
 
     const onMenuToggle = () => {
@@ -80,5 +110,25 @@ export function useLayout() {
 
     const getSurface = computed(() => layoutConfig.surface);
 
-    return { layoutConfig: readonly(layoutConfig), layoutState: readonly(layoutState), onMenuToggle, isSidebarActive, isDarkTheme, getPrimary, getSurface, setActiveMenuItem, toggleDarkMode, setPrimary, setSurface, setPreset, resetMenu, setMenuMode };
+    const getTheme = computed(() => layoutConfig.theme);
+
+    return { 
+        layoutConfig: readonly(layoutConfig), 
+        layoutState: readonly(layoutState), 
+        onMenuToggle, 
+        isSidebarActive, 
+        isDarkTheme, 
+        getPrimary, 
+        getSurface, 
+        getTheme,
+        setActiveMenuItem, 
+        toggleDarkMode, 
+        setPrimary, 
+        setSurface, 
+        setPreset, 
+        setTheme,
+        resetMenu, 
+        setMenuMode,
+        updateTheme
+    };
 }

@@ -41,9 +41,14 @@ const carouselResponsiveOptions = ref([
     }
 ]);
 
+// Check if we're in a browser environment
+const isClient = typeof window !== 'undefined';
+
 onMounted(() => {
-    ProductService.getProductsSmall().then((data) => (products.value = data));
-    PhotoService.getImages().then((data) => (images.value = data));
+    if (isClient) {
+        ProductService.getProductsSmall().then((data) => (products.value = data));
+        PhotoService.getImages().then((data) => (images.value = data));
+    }
 });
 
 function getSeverity(status) {

@@ -8,12 +8,24 @@ const orderlistProducts = ref(null);
 const options = ref(['list', 'grid']);
 const layout = ref('list');
 
+// Check if we're in a browser environment
+const isClient = typeof window !== 'undefined';
+
+// Initialize with empty data for server-side rendering
+products.value = [];
+picklistProducts.value = [[], []];
+orderlistProducts.value = [];
+options.value = ['list', 'grid'];
+layout.value = 'list';
+
 onMounted(() => {
-    ProductService.getProductsSmall().then((data) => {
-        products.value = data.slice(0, 6);
-        picklistProducts.value = [data, []];
-        orderlistProducts.value = data;
-    });
+    if (isClient) {
+        ProductService.getProductsSmall().then((data) => {
+            products.value = data.slice(0, 6);
+            picklistProducts.value = [data, []];
+            orderlistProducts.value = data;
+        });
+    }
 });
 
 function getSeverity(product) {

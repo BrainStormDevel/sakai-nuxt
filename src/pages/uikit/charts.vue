@@ -1,8 +1,13 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import {useLayout} from "~/layouts/composables/layout.js";
+import { useLayout } from "~/layouts/composables/layout.js";
 
-const { getPrimary, getSurface, isDarkTheme } = useLayout();
+// Check if we're in a browser environment
+const isClient = typeof window !== 'undefined';
+
+// Initialize layout composable only on client side
+let getPrimary, getSurface, isDarkTheme;
+
 const lineData = ref(null);
 const pieData = ref(null);
 const polarData = ref(null);
@@ -14,29 +19,148 @@ const polarOptions = ref(null);
 const barOptions = ref(null);
 const radarOptions = ref(null);
 
+// Initialize data for server-side rendering
+barData.value = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+        {
+            label: 'My First dataset',
+            backgroundColor: '#3B82F6',
+            borderColor: '#3B82F6',
+            data: [65, 59, 80, 81, 56, 55, 40]
+        },
+        {
+            label: 'My Second dataset',
+            backgroundColor: '#93C5FD',
+            borderColor: '#93C5FD',
+            data: [28, 48, 40, 19, 86, 27, 90]
+        }
+    ]
+};
+
+pieData.value = {
+    labels: ['A', 'B', 'C'],
+    datasets: [
+        {
+            data: [540, 325, 702],
+            backgroundColor: ['#6366F1', '#A855F7', '#14B8A6'],
+            hoverBackgroundColor: ['#818CF8', '#C084FC', '#2DD4BF']
+        }
+    ]
+};
+
+lineData.value = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+        {
+            label: 'First Dataset',
+            data: [65, 59, 80, 81, 56, 55, 40],
+            fill: false,
+            backgroundColor: '#3B82F6',
+            borderColor: '#3B82F6',
+            tension: 0.4
+        },
+        {
+            label: 'Second Dataset',
+            data: [28, 48, 40, 19, 86, 27, 90],
+            fill: false,
+            backgroundColor: '#93C5FD',
+            borderColor: '#93C5FD',
+            tension: 0.4
+        }
+    ]
+};
+
+polarData.value = {
+    datasets: [
+        {
+            data: [11, 16, 7, 3],
+            backgroundColor: ['#6366F1', '#A855F7', '#14B8A6', '#F97316'],
+            label: 'My dataset'
+        }
+    ],
+    labels: ['Indigo', 'Purple', 'Teal', 'Orange']
+};
+
+radarData.value = {
+    labels: ['Eating', 'Drinking', 'Sleeping', 'Designing', 'Coding', 'Cycling', 'Running'],
+    datasets: [
+        {
+            label: 'My First dataset',
+            borderColor: '#818CF8',
+            pointBackgroundColor: '#818CF8',
+            pointBorderColor: '#818CF8',
+            pointHoverBackgroundColor: '#333333',
+            pointHoverBorderColor: '#818CF8',
+            data: [65, 59, 90, 81, 56, 55, 40]
+        },
+        {
+            label: 'My Second dataset',
+            borderColor: '#C084FC',
+            pointBackgroundColor: '#C084FC',
+            pointBorderColor: '#C084FC',
+            pointHoverBackgroundColor: '#333333',
+            pointHoverBorderColor: '#C084FC',
+            data: [28, 48, 40, 19, 96, 27, 100]
+        }
+    ]
+};
+
+// Initialize layout composable only on client side
+if (isClient) {
+    try {
+        const layout = useLayout();
+        getPrimary = layout.getPrimary;
+        getSurface = layout.getSurface;
+        isDarkTheme = layout.isDarkTheme;
+    } catch (error) {
+        console.error('Error initializing layout:', error);
+    }
+}
+
 onMounted(() => {
-    setColorOptions();
+    if (isClient) {
+        try {
+            setColorOptions();
+        } catch (error) {
+            console.error('Error setting color options:', error);
+        }
+    }
 });
 
+function getComputedStyleSafe() {
+    if (isClient) {
+        try {
+            return getComputedStyle(document.documentElement);
+        } catch (error) {
+            console.error('Error getting computed style:', error);
+        }
+    }
+    // Return default values for server-side rendering
+    return {
+        getPropertyValue: () => '#64748B' // Default gray color
+    };
+}
+
 function setColorOptions() {
-    const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--text-color');
-    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-    const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+    const documentStyle = getComputedStyleSafe();
+    const textColor = documentStyle.getPropertyValue('--text-color') || '#333333';
+    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary') || '#666666';
+    const surfaceBorder = documentStyle.getPropertyValue('--surface-border') || '#e0e0e0';
 
     barData.value = {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [
             {
                 label: 'My First dataset',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-500'),
-                borderColor: documentStyle.getPropertyValue('--p-primary-500'),
+                backgroundColor: documentStyle.getPropertyValue('--p-primary-500') || '#3B82F6',
+                borderColor: documentStyle.getPropertyValue('--p-primary-500') || '#3B82F6',
                 data: [65, 59, 80, 81, 56, 55, 40]
             },
             {
                 label: 'My Second dataset',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                borderColor: documentStyle.getPropertyValue('--p-primary-200'),
+                backgroundColor: documentStyle.getPropertyValue('--p-primary-200') || '#93C5FD',
+                borderColor: documentStyle.getPropertyValue('--p-primary-200') || '#93C5FD',
                 data: [28, 48, 40, 19, 86, 27, 90]
             }
         ]
@@ -45,7 +169,7 @@ function setColorOptions() {
         plugins: {
             legend: {
                 labels: {
-                    fontColor: textColor
+                    color: textColor
                 }
             }
         },
@@ -79,8 +203,16 @@ function setColorOptions() {
         datasets: [
             {
                 data: [540, 325, 702],
-                backgroundColor: [documentStyle.getPropertyValue('--p-indigo-500'), documentStyle.getPropertyValue('--p-purple-500'), documentStyle.getPropertyValue('--p-teal-500')],
-                hoverBackgroundColor: [documentStyle.getPropertyValue('--p-indigo-400'), documentStyle.getPropertyValue('--p-purple-400'), documentStyle.getPropertyValue('--p-teal-400')]
+                backgroundColor: [
+                    documentStyle.getPropertyValue('--p-indigo-500') || '#6366F1',
+                    documentStyle.getPropertyValue('--p-purple-500') || '#A855F7',
+                    documentStyle.getPropertyValue('--p-teal-500') || '#14B8A6'
+                ],
+                hoverBackgroundColor: [
+                    documentStyle.getPropertyValue('--p-indigo-400') || '#818CF8',
+                    documentStyle.getPropertyValue('--p-purple-400') || '#C084FC',
+                    documentStyle.getPropertyValue('--p-teal-400') || '#2DD4BF'
+                ]
             }
         ]
     };
@@ -103,16 +235,16 @@ function setColorOptions() {
                 label: 'First Dataset',
                 data: [65, 59, 80, 81, 56, 55, 40],
                 fill: false,
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-500'),
-                borderColor: documentStyle.getPropertyValue('--p-primary-500'),
+                backgroundColor: documentStyle.getPropertyValue('--p-primary-500') || '#3B82F6',
+                borderColor: documentStyle.getPropertyValue('--p-primary-500') || '#3B82F6',
                 tension: 0.4
             },
             {
                 label: 'Second Dataset',
                 data: [28, 48, 40, 19, 86, 27, 90],
                 fill: false,
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                borderColor: documentStyle.getPropertyValue('--p-primary-200'),
+                backgroundColor: documentStyle.getPropertyValue('--p-primary-200') || '#93C5FD',
+                borderColor: documentStyle.getPropertyValue('--p-primary-200') || '#93C5FD',
                 tension: 0.4
             }
         ]
@@ -122,7 +254,7 @@ function setColorOptions() {
         plugins: {
             legend: {
                 labels: {
-                    fontColor: textColor
+                    color: textColor
                 }
             }
         },
@@ -152,7 +284,12 @@ function setColorOptions() {
         datasets: [
             {
                 data: [11, 16, 7, 3],
-                backgroundColor: [documentStyle.getPropertyValue('--p-indigo-500'), documentStyle.getPropertyValue('--p-purple-500'), documentStyle.getPropertyValue('--p-teal-500'), documentStyle.getPropertyValue('--p-orange-500')],
+                backgroundColor: [
+                    documentStyle.getPropertyValue('--p-indigo-500') || '#6366F1',
+                    documentStyle.getPropertyValue('--p-purple-500') || '#A855F7',
+                    documentStyle.getPropertyValue('--p-teal-500') || '#14B8A6',
+                    documentStyle.getPropertyValue('--p-orange-500') || '#F97316'
+                ],
                 label: 'My dataset'
             }
         ],
@@ -181,20 +318,20 @@ function setColorOptions() {
         datasets: [
             {
                 label: 'My First dataset',
-                borderColor: documentStyle.getPropertyValue('--p-indigo-400'),
-                pointBackgroundColor: documentStyle.getPropertyValue('--p-indigo-400'),
-                pointBorderColor: documentStyle.getPropertyValue('--p-indigo-400'),
+                borderColor: documentStyle.getPropertyValue('--p-indigo-400') || '#818CF8',
+                pointBackgroundColor: documentStyle.getPropertyValue('--p-indigo-400') || '#818CF8',
+                pointBorderColor: documentStyle.getPropertyValue('--p-indigo-400') || '#818CF8',
                 pointHoverBackgroundColor: textColor,
-                pointHoverBorderColor: documentStyle.getPropertyValue('--p-indigo-400'),
+                pointHoverBorderColor: documentStyle.getPropertyValue('--p-indigo-400') || '#818CF8',
                 data: [65, 59, 90, 81, 56, 55, 40]
             },
             {
                 label: 'My Second dataset',
-                borderColor: documentStyle.getPropertyValue('--p-purple-400'),
-                pointBackgroundColor: documentStyle.getPropertyValue('--p-purple-400'),
-                pointBorderColor: documentStyle.getPropertyValue('--p-purple-400'),
+                borderColor: documentStyle.getPropertyValue('--p-purple-400') || '#C084FC',
+                pointBackgroundColor: documentStyle.getPropertyValue('--p-purple-400') || '#C084FC',
+                pointBorderColor: documentStyle.getPropertyValue('--p-purple-400') || '#C084FC',
                 pointHoverBackgroundColor: textColor,
-                pointHoverBorderColor: documentStyle.getPropertyValue('--p-purple-400'),
+                pointHoverBorderColor: documentStyle.getPropertyValue('--p-purple-400') || '#C084FC',
                 data: [28, 48, 40, 19, 96, 27, 100]
             }
         ]
@@ -204,7 +341,7 @@ function setColorOptions() {
         plugins: {
             legend: {
                 labels: {
-                    fontColor: textColor
+                    color: textColor
                 }
             }
         },
@@ -218,13 +355,20 @@ function setColorOptions() {
     };
 }
 
-watch(
-    [getPrimary, getSurface, isDarkTheme],
-    () => {
-        setColorOptions();
-    },
-    { immediate: true }
-);
+// Only watch on client side and only if variables are properly initialized
+if (isClient && typeof getPrimary !== 'undefined' && typeof getSurface !== 'undefined' && typeof isDarkTheme !== 'undefined') {
+    watch(
+        [getPrimary, getSurface, isDarkTheme],
+        () => {
+            try {
+                setColorOptions();
+            } catch (error) {
+                console.error('Error in watch setColorOptions:', error);
+            }
+        },
+        { immediate: true }
+    );
+}
 </script>
 
 <template>
@@ -232,37 +376,37 @@ watch(
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Linear</div>
-                <Chart type="line" :data="lineData" :options="lineOptions"></Chart>
+                <Chart v-if="lineData && lineOptions" type="line" :data="lineData" :options="lineOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Bar</div>
-                <Chart type="bar" :data="barData" :options="barOptions"></Chart>
+                <Chart v-if="barData && barOptions" type="bar" :data="barData" :options="barOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Pie</div>
-                <Chart type="pie" :data="pieData" :options="pieOptions"></Chart>
+                <Chart v-if="pieData && pieOptions" type="pie" :data="pieData" :options="pieOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Doughnut</div>
-                <Chart type="doughnut" :data="pieData" :options="pieOptions"></Chart>
+                <Chart v-if="pieData && pieOptions" type="doughnut" :data="pieData" :options="pieOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Polar Area</div>
-                <Chart type="polarArea" :data="polarData" :options="polarOptions"></Chart>
+                <Chart v-if="polarData && polarOptions" type="polarArea" :data="polarData" :options="polarOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Radar</div>
-                <Chart type="radar" :data="radarData" :options="radarOptions"></Chart>
+                <Chart v-if="radarData && radarOptions" type="radar" :data="radarData" :options="radarOptions"></Chart>
             </div>
         </div>
     </Fluid>
