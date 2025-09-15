@@ -21,7 +21,15 @@ const toast = useToast();
 const confirmPopup = useConfirm();
 
 onMounted(() => {
-    ProductService.getProductsSmall().then((data) => (products.value = data));
+    console.log('Fetching products...');
+    ProductService.getProductsSmall()
+        .then((data) => {
+            console.log('Products fetched:', data);
+            products.value = data;
+        })
+        .catch((error) => {
+            console.error('Error fetching products:', error);
+        });
 });
 
 function open() {

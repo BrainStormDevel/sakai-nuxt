@@ -4,27 +4,32 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxtjs/tailwindcss": "^6.12.2",
+    "@nuxtjs/tailwindcss": "^6.14.0",
     "@primeuix/themes": "^1.0.0",
-    "@primevue/forms": "^4.3.2",
+    "@primevue/forms": "^4.3.9",
     "chart.js": "4.4.6",
     "nuxt": "^3.14.159",
     "primeicons": "^7.0.0",
-    "primevue": "^4.2.2",
+    "primevue": "^4.3.9",
     "tailwindcss-primeui": "^0.3.4",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
-    "@primevue/nuxt-module": "^4.2.2",
+    "@primevue/nuxt-module": "^4.3.9",
     "autoprefixer": "^10.4.19",
+    "cross-env": "^7.0.3",
     "nitro-public-module": "^0.1.2",
     "sass": "^1.81.0"
+  },
+  "overrides": {
+    "@primeuix/utils": "^0.6.1",
+    "replace-in-file": "^8.3.0"
   }
 }

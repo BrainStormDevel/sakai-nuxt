@@ -24,9 +24,20 @@ export default defineNuxtConfig({
                     darkModeSelector: '.app-dark'
                 }
             }
+        },
+        components: {
+            include: [
+                'Button', 'Menu', 'Timeline', 'Message', 'Panel', 'Tree',
+                'Dialog', 'Popover', 'DataTable', 'Column', 'InputText',
+                'Drawer', 'ConfirmPopup', 'Toast', 'FileUpload', 'Tooltip',
+                'ConfirmDialog', 'Tag', 'Carousel', 'Image', 'Galleria',
+                'ButtonGroup', 'SplitButton', 'Toolbar', 'PickList', 'OrderList',
+                'DataView', 'Rating', 'Badge', 'OverlayBadge', 'Chip', 'IconField',
+                'InputIcon', 'FloatLabel', 'Textarea', 'AutoComplete', 'DatePicker',
+                'TieredMenu', 'ContextMenu', 'MegaMenu', 'SelectButton'
+            ]
         }
     },
-    plugins: ['~/plugins/primevue.js'],
     app: {
         head: {
             charset: 'utf-8',
