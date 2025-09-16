@@ -114,26 +114,17 @@ export default defineNuxtPlugin(() => {
                 ? JSON.parse(localStorage.getItem('layoutConfig') || '{}') 
                 : {};
             
-            // Apply all saved configuration values
+            // Apply all saved configuration values in correct order
             if (savedConfig.preset) {
                 setPreset(savedConfig.preset);
             }
             
             if (savedConfig.primary) {
                 setPrimary(savedConfig.primary);
-                // Apply the primary color preset
-                const presetValue = presets[layoutConfig.preset] || Aura;
-                const presetExt = getPresetExt(primaryColors, savedConfig.primary);
-                $t().preset(presetValue).preset(presetExt);
             }
             
             if (savedConfig.surface) {
                 setSurface(savedConfig.surface);
-                // Apply the surface color palette
-                const surface = surfaces.find((s) => s.name === savedConfig.surface);
-                if (surface) {
-                    updateSurfacePalette(surface.palette);
-                }
             }
             
             if (savedConfig.menuMode) {
@@ -142,6 +133,24 @@ export default defineNuxtPlugin(() => {
             
             if (savedConfig.theme) {
                 setTheme(savedConfig.theme);
+            }
+            
+            // Apply the preset configuration
+            const presetName = savedConfig.preset || layoutConfig.preset || 'Aura';
+            const presetValue = presets[presetName] || Aura;
+            const primaryColorName = savedConfig.primary || layoutConfig.primary || 'emerald';
+            const surfaceName = savedConfig.surface || layoutConfig.surface;
+            
+            // Apply the preset with extensions
+            const presetExt = getPresetExt(primaryColors, primaryColorName);
+            $t().preset(presetValue).preset(presetExt);
+            
+            // Apply the surface color palette if set
+            if (surfaceName) {
+                const surface = surfaces.find((s) => s.name === surfaceName);
+                if (surface) {
+                    updateSurfacePalette(surface.palette);
+                }
             }
             
             // Apply dark theme class if needed

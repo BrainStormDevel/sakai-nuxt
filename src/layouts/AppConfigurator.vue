@@ -189,6 +189,15 @@ onMounted(() => {
         // Ensure the layoutConfig is also updated
         setMenuMode(savedConfig.menuMode);
     }
+    
+    // Apply the preset configuration on mount
+    if (savedConfig.preset) {
+        const presetValue = presets[savedConfig.preset] || Aura;
+        const presetExt = getPresetExt();
+        const surfacePalette = surfaces.find((s) => s.name === (savedConfig.surface || layoutConfig.surface))?.palette;
+        
+        $t().preset(presetValue).preset(presetExt).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
+    }
 });
 </script>
 
