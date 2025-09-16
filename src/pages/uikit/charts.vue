@@ -1,12 +1,10 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useLayout } from "~/layouts/composables/layout.js";
 
 // Check if we're in a browser environment
 const isClient = typeof window !== 'undefined';
-
-// Initialize layout composable only on client side
-let getPrimary, getSurface, isDarkTheme;
+const isMounted = ref(false);
 
 const lineData = ref(null);
 const pieData = ref(null);
@@ -20,7 +18,7 @@ const barOptions = ref(null);
 const radarOptions = ref(null);
 
 // Initialize data for server-side rendering
-barData.value = {
+const initialBarData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
     datasets: [
         {
@@ -38,7 +36,7 @@ barData.value = {
     ]
 };
 
-pieData.value = {
+const initialPieData = {
     labels: ['A', 'B', 'C'],
     datasets: [
         {
@@ -49,7 +47,7 @@ pieData.value = {
     ]
 };
 
-lineData.value = {
+const initialLineData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
     datasets: [
         {
@@ -71,7 +69,7 @@ lineData.value = {
     ]
 };
 
-polarData.value = {
+const initialPolarData = {
     datasets: [
         {
             data: [11, 16, 7, 3],
@@ -82,7 +80,7 @@ polarData.value = {
     labels: ['Indigo', 'Purple', 'Teal', 'Orange']
 };
 
-radarData.value = {
+const initialRadarData = {
     labels: ['Eating', 'Drinking', 'Sleeping', 'Designing', 'Coding', 'Cycling', 'Running'],
     datasets: [
         {
@@ -106,25 +104,13 @@ radarData.value = {
     ]
 };
 
-// Initialize layout composable only on client side
-if (isClient) {
-    try {
-        const layout = useLayout();
-        getPrimary = layout.getPrimary;
-        getSurface = layout.getSurface;
-        isDarkTheme = layout.isDarkTheme;
-    } catch (error) {
-        console.error('Error initializing layout:', error);
-    }
-}
+// Initialize layout composable
+const { getPrimary, getSurface, isDarkTheme } = useLayout();
 
 onMounted(() => {
     if (isClient) {
-        try {
-            setColorOptions();
-        } catch (error) {
-            console.error('Error setting color options:', error);
-        }
+        isMounted.value = true;
+        setColorOptions();
     }
 });
 
@@ -354,21 +340,6 @@ function setColorOptions() {
         }
     };
 }
-
-// Only watch on client side and only if variables are properly initialized
-if (isClient && typeof getPrimary !== 'undefined' && typeof getSurface !== 'undefined' && typeof isDarkTheme !== 'undefined') {
-    watch(
-        [getPrimary, getSurface, isDarkTheme],
-        () => {
-            try {
-                setColorOptions();
-            } catch (error) {
-                console.error('Error in watch setColorOptions:', error);
-            }
-        },
-        { immediate: true }
-    );
-}
 </script>
 
 <template>
@@ -376,37 +347,37 @@ if (isClient && typeof getPrimary !== 'undefined' && typeof getSurface !== 'unde
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Linear</div>
-                <Chart v-if="lineData && lineOptions" type="line" :data="lineData" :options="lineOptions"></Chart>
+                <Chart v-if="isMounted && lineData && lineOptions" type="line" :data="lineData" :options="lineOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Bar</div>
-                <Chart v-if="barData && barOptions" type="bar" :data="barData" :options="barOptions"></Chart>
+                <Chart v-if="isMounted && barData && barOptions" type="bar" :data="barData" :options="barOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Pie</div>
-                <Chart v-if="pieData && pieOptions" type="pie" :data="pieData" :options="pieOptions"></Chart>
+                <Chart v-if="isMounted && pieData && pieOptions" type="pie" :data="pieData" :options="pieOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Doughnut</div>
-                <Chart v-if="pieData && pieOptions" type="doughnut" :data="pieData" :options="pieOptions"></Chart>
+                <Chart v-if="isMounted && pieData && pieOptions" type="doughnut" :data="pieData" :options="pieOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Polar Area</div>
-                <Chart v-if="polarData && polarOptions" type="polarArea" :data="polarData" :options="polarOptions"></Chart>
+                <Chart v-if="isMounted && polarData && polarOptions" type="polarArea" :data="polarData" :options="polarOptions"></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card flex flex-col items-center">
                 <div class="font-semibold text-xl mb-4">Radar</div>
-                <Chart v-if="radarData && radarOptions" type="radar" :data="radarData" :options="radarOptions"></Chart>
+                <Chart v-if="isMounted && radarData && radarOptions" type="radar" :data="radarData" :options="radarOptions"></Chart>
             </div>
         </div>
     </Fluid>
