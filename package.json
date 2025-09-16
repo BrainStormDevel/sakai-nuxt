@@ -5,10 +5,11 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation nuxt dev",
-    "generate": "cross-env NODE_OPTIONS=--no-warnings nuxt generate",
+    "generate": "cross-env NITRO_PRESET=netlify-static nuxt generate",
     "preview": "nuxt preview",
     "start": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "build-netlify": "cross-env NITRO_PRESET=netlify-static nuxt build"
   },
   "engines" : { 
     "npm" : ">=11.0.0",

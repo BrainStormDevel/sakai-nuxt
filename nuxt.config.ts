@@ -55,11 +55,13 @@ export default defineNuxtConfig({
         }
     },
     nitro: {
+        // Configure Nitro for Netlify deployment
+        preset: 'netlify-static',
         storage: {
-        cache: {
-            driver: 'fs',
-            base: './.cache'
-        }
+            cache: {
+                driver: 'fs',
+                base: './.cache'
+            }
         }
     },
     plugins: [

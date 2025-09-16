@@ -1,113 +1,106 @@
 # Sakai Nuxt
 
-Sakai Nuxt is a Nuxt-based application template derived from the original [Sakai Vue](https://github.com/primefaces/sakai-vue) project. This template enhances the development experience by leveraging Nuxt features like server-side rendering (SSR), static site generation (SSG), and seamless file-based routing.
-
-Live Demo: [sakai-nuxt.netlify.app](https://sakai-nuxt.netlify.app)
-
-## Overview
-
-### Sakai Vue
-The original Sakai Vue template is a Vue-based application starter powered by Vite. It provides a robust foundation for building scalable, performant web applications with features like:
-- Minimalistic structure for quick setup.
-- PrimeVue integration for UI components.
-- Tailwind CSS for responsive and modern styling.
-
-Visit the original Sakai Vue repository [here](https://github.com/primefaces/sakai-vue).
-
-### Sakai Nuxt
-Sakai Nuxt builds on this foundation, introducing the power and flexibility of Nuxt.js:
-- **Server-Side Rendering (SSR)**: Boosts performance and SEO by rendering pages on the server.
-- **Static Site Generation (SSG)**: Enables easy deployment of static pages for fast-loading, SEO-friendly sites.
-- **File-Based Routing**: Simplifies route creation with Nuxt's pages directory.
-- **Nuxt Modules**: Extend functionality with ready-to-use modules for SEO, analytics, and state management.
+A Nuxt 3 application template based on the Sakai Vue project, enhanced with PrimeVue UI components and Tailwind CSS styling.
 
 ## Features
-- **Nuxt 3 Framework**
-- **PrimeVue Integration** for modern UI components.
-- **Tailwind CSS** for utility-first styling.
-- Configurable layout and menu through `layouts/` and `pages/`.
-- Easily extendable and customizable.
+
+- Nuxt 3 Framework with SSR/SSG capabilities
+- PrimeVue 4 Integration for UI components
+- Tailwind CSS for utility-first styling
+- Configurable layout and menu
+- File-based routing
+- Docker-based deployment support
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js (>=20.19.0)
+- npm (>=11.0.0)
+
 ### Installation
 
-Clone the repository and install dependencies:
+```bash
+npm install
+```
 
-```  bash
-git clone https://github.com/brainstormdevel/sakai-nuxt  
-cd sakai-nuxt  
-npm install  
-```  
+### Development
 
-### Running the Development Server
-
-Run the development server with the following command:
-
-```bash  
-npm run dev  
-```  
-
-Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to view the application.
+```bash
+npm run dev
+```
 
 ### Build for Production
 
-To build the project for production:
-
-```bash  
-nuxt generate
-```  
-
-Start the production server:
-
-```bash  
-nuxt preview  
-```  
-
-### Deploy
-
-Deploy your static site using Nuxt's static generation:
-
-```bash  
-npm run generate  
-```  
-
-### Docker Image Generation
-
-To build the Docker image, run the build.sh script with a tag name:
-
 ```bash
-build.sh <TAG_NAME>
+npm run build
 ```
 
-Run Docker Image
-
-To run the Docker image, use docker-compose:
+### Generate Static Site
 
 ```bash
+npm run generate
+```
+
+### Preview Static Site
+
+```bash
+npx serve dist
+```
+
+## Deployment
+
+### Netlify
+
+This project is configured for deployment to Netlify. The configuration is in [netlify.toml](netlify.toml):
+
+```toml
+[build]
+  command = "npm run generate"
+  publish = "dist"
+```
+
+To deploy to Netlify:
+
+1. Push your code to a Git repository
+2. Connect your repository to Netlify
+3. Netlify will automatically use the configuration in [netlify.toml](netlify.toml)
+
+Alternatively, you can deploy manually:
+
+1. Generate the static site:
+   ```bash
+   npm run generate
+   ```
+2. Deploy the `dist` folder to Netlify
+
+## Docker Deployment
+
+The project includes Docker support:
+
+```bash
+# Build the Docker image
+./build.sh <TAG_NAME>
+
+# Run the container
 docker-compose up
 ```
 
-### Key Docker Files
+## Project Structure
 
-	•	Dockerfile: Defines the multi-stage build process for the Docker image.
-	•	docker-compose.yaml: Configuration for running the application in Docker.
-	•	build.sh: Bash script to build the Docker image.
+- `src/pages/`: Application pages with automatic routing
+- `src/layouts/`: Layout components
+- `src/components/`: Reusable UI components
+- `src/composables/`: Shared logic
+- `src/assets/`: SCSS styles and assets
+- `src/service/`: Mock data services
+- `src/plugins/`: Plugin configurations
 
-For more details on the Docker process, review these files in the repository.
+## Technology Stack
 
-## Folder Structure
-
-- `pages/`: Houses application pages, automatically configured for routing.
-- `layouts/`: Defines the main layout for the app.
-- `composables/`: Contains reusable logic, similar to Vue's `src/layout/composables`.
-- `assets/`: Holds static assets such as styles and images.
-- `nuxt.config.js`: Centralized configuration file for Nuxt.
-
-## Customization
-
-### Menu
-The main menu is defined in the `layouts/AppMenu.vue` file. Update the `model` property to customize menu items.
-
-## Contribution
-Contributions are welcome! Feel free to fork the repository, submit issues, or create pull requests.  
+- **Framework**: Nuxt 3
+- **UI Library**: PrimeVue 4
+- **Styling**: Tailwind CSS, SCSS
+- **State Management**: Nuxt built-in (via composables and plugins)
+- **Build Tool**: Nuxt CLI
+- **Package Manager**: npm
