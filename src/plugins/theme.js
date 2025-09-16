@@ -142,15 +142,6 @@ export default defineNuxtPlugin(() => {
             
             if (savedConfig.theme) {
                 setTheme(savedConfig.theme);
-                // Apply the theme CSS
-                const themeLinks = document.querySelectorAll('[data-primevue-theme]');
-                themeLinks.forEach(link => link.remove());
-                
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = `https://unpkg.com/primevue@latest/resources/themes/${savedConfig.theme}/theme.css`;
-                link.setAttribute('data-primevue-theme', 'true');
-                document.head.appendChild(link);
             }
             
             // Apply dark theme class if needed

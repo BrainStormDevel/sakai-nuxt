@@ -227,20 +227,6 @@ export function useLayout() {
 
     const setTheme = (value) => {
         layoutConfig.theme = value;
-        
-        // Update the theme CSS
-        if (typeof window !== 'undefined') {
-            // Remove existing theme styles
-            const themeLinks = document.querySelectorAll('[data-primevue-theme]');
-            themeLinks.forEach(link => link.remove());
-            
-            // Add new theme
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = `https://unpkg.com/primevue@latest/resources/themes/${value}/theme.css`;
-            link.setAttribute('data-primevue-theme', 'true');
-            document.head.appendChild(link);
-        }
     };
 
     const setActiveMenuItem = (item) => {
