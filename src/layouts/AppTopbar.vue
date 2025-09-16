@@ -1,9 +1,32 @@
 <script setup>
-
 import {useLayout} from "~/layouts/composables/layout.js";
 import AppConfigurator from "~/layouts/AppConfigurator.vue";
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
+const isConfiguratorVisible = ref(false);
+const isMounted = ref(false);
+const configuratorButtonRef = ref(null);
+
+const toggleConfigurator = () => {
+    isConfiguratorVisible.value = !isConfiguratorVisible.value;
+};
+
+const hideConfigurator = (event) => {
+    if (configuratorButtonRef.value && !configuratorButtonRef.value.contains(event.target) && 
+        !event.target.closest('.config-panel')) {
+        isConfiguratorVisible.value = false;
+    }
+};
+
+onMounted(() => {
+    isMounted.value = true;
+    document.addEventListener('click', hideConfigurator);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', hideConfigurator);
+});
 </script>
 
 <template>
@@ -42,13 +65,20 @@ const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
                 </button>
                 <div class="relative">
                     <button
-                        v-styleclass="{ selector: '@next', enterFromClass: 'hidden', enterActiveClass: 'animate-scalein', leaveToClass: 'hidden', leaveActiveClass: 'animate-fadeout', hideOnOutsideClick: true }"
+                        ref="configuratorButtonRef"
                         type="button"
                         class="layout-topbar-action layout-topbar-action-highlight"
+                        @click="toggleConfigurator"
                     >
                         <i class="pi pi-palette"></i>
                     </button>
-                    <AppConfigurator />
+                    <!-- Only render the configurator panel when mounted to avoid hydration issues -->
+                    <div 
+                        v-if="isMounted && isConfiguratorVisible"
+                        class="config-panel absolute top-100 right-0 w-64 p-4 bg-white dark:bg-surface-800 border border-surface rounded-border shadow-[0_4px_16px_0_rgba(0,0,0,0.08)] animate-scalein"
+                    >
+                        <AppConfigurator />
+                    </div>
                 </div>
             </div>
 

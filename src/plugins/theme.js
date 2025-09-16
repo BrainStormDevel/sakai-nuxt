@@ -105,7 +105,7 @@ function getPresetExt(primaryColors, primaryColorName) {
 export default defineNuxtPlugin(() => {
     // This plugin will run on the client side only
     if (process.client) {
-        const { layoutConfig, setPrimary, setSurface, setPreset, setTheme, primaryColors, surfaces } = useLayout();
+        const { layoutConfig, setPrimary, setSurface, setPreset, setTheme, setMenuMode, primaryColors, surfaces } = useLayout();
         
         // Apply saved layout preferences on app initialization
         const applySavedLayout = () => {
@@ -134,6 +134,10 @@ export default defineNuxtPlugin(() => {
                 if (surface) {
                     updateSurfacePalette(surface.palette);
                 }
+            }
+            
+            if (savedConfig.menuMode) {
+                setMenuMode(savedConfig.menuMode);
             }
             
             if (savedConfig.theme) {

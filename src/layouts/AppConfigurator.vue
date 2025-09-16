@@ -22,6 +22,11 @@ const menuModeOptions = ref([
     { label: 'Overlay', value: 'overlay' }
 ]);
 
+// Client-only refs to avoid hydration issues
+const isMounted = ref(false);
+const clientPrimary = ref(null);
+const clientSurface = ref(null);
+
 // Watch for changes in layoutConfig and update local refs
 watch(() => layoutConfig.preset, (newPreset) => {
     preset.value = newPreset;
@@ -29,6 +34,15 @@ watch(() => layoutConfig.preset, (newPreset) => {
 
 watch(() => layoutConfig.menuMode, (newMenuMode) => {
     menuMode.value = newMenuMode;
+});
+
+// Update client refs when layoutConfig changes
+watch(() => layoutConfig.primary, (newPrimary) => {
+    clientPrimary.value = newPrimary;
+});
+
+watch(() => layoutConfig.surface, (newSurface) => {
+    clientSurface.value = newSurface;
 });
 
 function getPresetExt() {
@@ -151,22 +165,10 @@ function onMenuModeChange() {
     setMenuMode(menuMode.value);
 }
 
-// Client-only refs to avoid hydration issues
-// Initialize with null to avoid mismatch with server-rendered content
-const clientPrimary = ref(null);
-const clientSurface = ref(null);
-
-// Update client refs when layoutConfig changes
-watch(() => layoutConfig.primary, (newPrimary) => {
-    clientPrimary.value = newPrimary;
-});
-
-watch(() => layoutConfig.surface, (newSurface) => {
-    clientSurface.value = newSurface;
-});
-
 // Only update after mounting to avoid hydration issues
 onMounted(() => {
+    isMounted.value = true;
+    
     // Get the actual values from localStorage to match what the server rendered
     const savedConfig = typeof window !== 'undefined' && typeof localStorage !== 'undefined' 
         ? JSON.parse(localStorage.getItem('layoutConfig') || '{}') 
@@ -180,16 +182,18 @@ onMounted(() => {
     if (savedConfig.preset) {
         preset.value = savedConfig.preset;
     }
+    
+    // Update menuMode ref to match saved config
     if (savedConfig.menuMode) {
         menuMode.value = savedConfig.menuMode;
+        // Ensure the layoutConfig is also updated
+        setMenuMode(savedConfig.menuMode);
     }
 });
 </script>
 
 <template>
-    <div
-        class="config-panel hidden absolute top-[3.25rem] right-0 w-64 p-4 bg-surface-0 dark:bg-surface-900 border border-surface rounded-border origin-top shadow-[0px_3px_5px_rgba(0,0,0,0.02),0px_0px_2px_rgba(0,0,0,0.05),0px_1px_4px_rgba(0,0,0,0.08)]"
-    >
+    <div v-if="isMounted" class="config-panel-inner">
         <div class="flex flex-col gap-4">
             <div>
                 <span class="text-sm text-muted-color font-semibold">Primary</span>
