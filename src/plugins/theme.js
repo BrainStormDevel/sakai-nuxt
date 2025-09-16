@@ -154,7 +154,7 @@ export default defineNuxtPlugin(() => {
             }
             
             // Apply dark theme class if needed
-            if (savedConfig.darkTheme) {
+            if (savedConfig.darkTheme !== undefined ? savedConfig.darkTheme : layoutConfig.darkTheme) {
                 document.documentElement.classList.add('app-dark');
             } else {
                 document.documentElement.classList.remove('app-dark');
@@ -163,5 +163,11 @@ export default defineNuxtPlugin(() => {
         
         // Apply layout on client initialization
         applySavedLayout();
+    }
+    
+    // For SSR, we need to make sure the initial state is consistent
+    if (process.server) {
+        // Server-side rendering - we don't have access to localStorage
+        // The default state will be light mode (sun icon)
     }
 });

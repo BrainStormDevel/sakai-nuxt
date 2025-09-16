@@ -61,7 +61,10 @@ onBeforeUnmount(() => {
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
-                    <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
+                    <!-- Use isMounted to prevent hydration mismatch -->
+                    <i v-if="isMounted" :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
+                    <!-- Fallback for SSR to prevent hydration mismatch -->
+                    <i v-else class="pi pi-sun"></i>
                 </button>
                 <div class="relative">
                     <button
