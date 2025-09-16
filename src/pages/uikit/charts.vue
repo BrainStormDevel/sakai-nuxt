@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useLayout } from "~/layouts/composables/layout.js";
 
 // Check if we're in a browser environment
@@ -110,6 +110,13 @@ const { getPrimary, getSurface, isDarkTheme } = useLayout();
 onMounted(() => {
     if (isClient) {
         isMounted.value = true;
+        setColorOptions();
+    }
+});
+
+// Watch for theme changes and update chart colors
+watch([getPrimary, isDarkTheme], () => {
+    if (isMounted.value && isClient) {
         setColorOptions();
     }
 });
