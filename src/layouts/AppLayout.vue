@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
@@ -8,9 +8,44 @@ import {useLayout} from "~/layouts/composables/layout.js";
 const { layoutConfig, layoutState, isSidebarActive, resetMenu } = useLayout();
 
 const outsideClickListener = ref(null);
-
-// Check if we're in a browser environment
 const isClient = typeof window !== 'undefined';
+const isMounted = ref(false);
+
+// Update the mounted state after mounting
+onMounted(() => {
+    isMounted.value = true;
+});
+
+const containerClass = computed(() => {
+    // Only apply the full class set after mounting to avoid hydration mismatch
+    if (!isMounted.value) {
+        // During SSR and initial hydration, use a minimal set of classes
+        return 'layout-wrapper';
+    }
+    
+    // After mounting, apply the full set of classes
+    const classes = ['layout-wrapper'];
+    
+    if (layoutConfig.menuMode === 'overlay') {
+        classes.push('layout-overlay');
+    } else if (layoutConfig.menuMode === 'static') {
+        classes.push('layout-static');
+    }
+    
+    if (layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static') {
+        classes.push('layout-static-inactive');
+    }
+    
+    if (layoutState.overlayMenuActive) {
+        classes.push('layout-overlay-active');
+    }
+    
+    if (layoutState.staticMenuMobileActive) {
+        classes.push('layout-mobile-active');
+    }
+    
+    return classes.join(' ');
+});
 
 watch(isSidebarActive, (newVal) => {
     if (newVal && isClient) {
@@ -18,16 +53,6 @@ watch(isSidebarActive, (newVal) => {
     } else {
         unbindOutsideClickListener();
     }
-});
-
-const containerClass = computed(() => {
-    return {
-        'layout-overlay': layoutConfig.menuMode === 'overlay',
-        'layout-static': layoutConfig.menuMode === 'static',
-        'layout-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-        'layout-overlay-active': layoutState.overlayMenuActive,
-        'layout-mobile-active': layoutState.staticMenuMobileActive
-    };
 });
 
 function bindOutsideClickListener() {
@@ -63,7 +88,7 @@ function isOutsideClicked(event) {
 </script>
 
 <template>
-    <div class="layout-wrapper" :class="containerClass">
+    <div :class="containerClass">
         <app-topbar></app-topbar>
         <div class="layout-sidebar">
             <app-sidebar></app-sidebar>

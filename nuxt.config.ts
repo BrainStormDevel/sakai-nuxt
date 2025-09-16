@@ -61,5 +61,8 @@ export default defineNuxtConfig({
             base: './.cache'
         }
         }
-    }
+    },
+    plugins: [
+        '~/plugins/theme.js'
+    ]
 })
