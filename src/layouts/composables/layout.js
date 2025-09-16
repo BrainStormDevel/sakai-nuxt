@@ -1,7 +1,7 @@
 import { computed, reactive, readonly } from 'vue';
 
 const layoutConfig = reactive({
-    preset: 'Lara',
+    preset: 'Aura',
     primary: 'emerald',
     surface: null,
     darkTheme: false,
