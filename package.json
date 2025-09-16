@@ -5,7 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation nuxt dev",
-    "generate": "nuxt generate",
+    "generate": "cross-env NODE_OPTIONS=--no-warnings nuxt generate",
     "preview": "nuxt preview",
     "start": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -25,7 +25,6 @@
     "@primevue/nuxt-module": "^4.3.9",
     "autoprefixer": "^10.4.19",
     "cross-env": "^7.0.3",
-    "nitro-public-module": "^0.1.2",
     "sass": "^1.81.0"
   },
   "overrides": {

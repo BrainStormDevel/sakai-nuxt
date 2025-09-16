@@ -54,4 +54,12 @@ export default defineNuxtConfig({
             }
         }
     },
+    nitro: {
+        storage: {
+        cache: {
+            driver: 'fs',
+            base: './.cache'
+        }
+        }
+    }
 })
