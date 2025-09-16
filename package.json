@@ -27,5 +27,9 @@
     "cross-env": "^7.0.3",
     "nitro-public-module": "^0.1.2",
     "sass": "^1.81.0"
+  },
+  "overrides": {
+    "glob": "^10.4.5",
+    "inflight": "^1.0.6"
   }
 }
