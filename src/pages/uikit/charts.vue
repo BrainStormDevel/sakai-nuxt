@@ -1,10 +1,14 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onUnmounted, nextTick } from 'vue';
 import { useLayout } from "~/layouts/composables/layout.js";
 
 // Check if we're in a browser environment
 const isClient = typeof window !== 'undefined';
 const isMounted = ref(false);
+
+// Chart references
+const lineChart = ref(null);
+const barChart = ref(null);
 
 const lineData = ref(null);
 const pieData = ref(null);
@@ -104,22 +108,96 @@ const initialRadarData = {
     ]
 };
 
-// Initialize layout composable
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
 
 onMounted(() => {
     if (isClient) {
         isMounted.value = true;
         setColorOptions();
+        
+        // Add resize listener
+        window.addEventListener('resize', handleResize);
     }
 });
 
-// Watch for theme changes and update chart colors
+onUnmounted(() => {
+    if (isClient) {
+        // Clean up resize listener
+        window.removeEventListener('resize', handleResize);
+    }
+});
+
 watch([getPrimary, isDarkTheme], () => {
     if (isMounted.value && isClient) {
         setColorOptions();
     }
 });
+
+defineExpose({
+    resizeAllCharts: handleResize
+});
+
+function handleResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        nextTick(() => {
+            try {
+                const charts = [lineChart, barChart];
+                let resizedCount = 0;
+                
+                charts.forEach(chartRef => {
+                    if (chartRef.value && chartRef.value.chart) {
+                        try {
+                            chartRef.value.chart.resize();
+                            resizedCount++;
+                        } catch (chartError) {
+                            console.warn('Error resizing individual chart:', chartError);
+                        }
+                    }
+                });
+                
+                if (resizedCount > 0) {
+                    console.log(`Resized ${resizedCount} charts`);
+                }
+            } catch (error) {
+                console.warn('Error resizing charts:', error);
+            }
+        });
+    }, 150);
+}
+
+function forceResizeCharts() {
+    nextTick(() => {
+        try {
+            const charts = [lineChart, barChart];
+            let resizedCount = 0;
+            
+            charts.forEach(chartRef => {
+                if (chartRef.value && chartRef.value.chart) {
+                    try {
+                        const chartElement = chartRef.value.$el;
+                        if (chartElement) {
+                            const width = chartElement.clientWidth;
+                            const height = chartElement.clientHeight;
+                            chartRef.value.chart.resize(width, height);
+                        } else {
+                            chartRef.value.chart.resize();
+                        }
+                        resizedCount++;
+                    } catch (chartError) {
+                        console.warn('Error resizing individual chart:', chartError);
+                    }
+                }
+            });
+            
+            console.log(`Force resized ${resizedCount} charts`);
+        } catch (error) {
+            console.warn('Error force resizing charts:', error);
+        }
+    });
+}
+
+let resizeTimer;
 
 function getComputedStyleSafe() {
     if (isClient) {
@@ -347,20 +425,34 @@ function setColorOptions() {
         }
     };
 }
-</script>
 
+</script>
 <template>
     <Fluid class="grid grid-cols-12 gap-8">
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Linear</div>
-                <Chart v-if="isMounted && lineData && lineOptions" type="line" :data="lineData" :options="lineOptions"></Chart>
+                <Chart 
+                    v-if="isMounted && lineData && lineOptions" 
+                    ref="lineChart"
+                    type="line" 
+                    :data="lineData" 
+                    :options="lineOptions"
+                    class="chart-container"
+                ></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Bar</div>
-                <Chart v-if="isMounted && barData && barOptions" type="bar" :data="barData" :options="barOptions"></Chart>
+                <Chart 
+                    v-if="isMounted && barData && barOptions" 
+                    ref="barChart"
+                    type="bar" 
+                    :data="barData" 
+                    :options="barOptions"
+                    class="chart-container"
+                ></Chart>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
@@ -389,3 +481,27 @@ function setColorOptions() {
         </div>
     </Fluid>
 </template>
+
+<style scoped>
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+}
+
+.card {
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .chart-container {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-container {
+        height: 250px;
+    }
+}
+</style>
